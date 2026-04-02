@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  vulnerable-nextjs:
+    build: .
+    container_name: nextjs-cve-2025-29927
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./src:/app/src
+      - /app/node_modules
+    restart: unless-stopped
+    networks:
+      - vuln-net
+
+networks:
+  vuln-net:
+    driver: bridge
