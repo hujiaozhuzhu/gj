@@ -1,91 +1,91 @@
-# CVE-2025-29927 - Next.js Middleware Authorization Bypass POC
+# CVE-2025-29927 - Next.js 中间件授权绕过 POC
 
-> ⚠️ **Legal Disclaimer**: This tool is intended for security research, authorized penetration testing, and educational purposes only. Using this tool against targets without explicit permission is illegal and unethical.
+> ⚠️ **法律声明**: 此工具仅用于安全研究、授权渗透测试和教育目的。在未获得明确许可的情况下，将此工具用于目标系统是非法且不道德的。
 
-## 📋 Overview
+## 📋 概述
 
-**CVE-2025-29927** is a critical security vulnerability in Next.js that allows attackers to bypass middleware-based authorization controls by exploiting improper handling of the `x-middleware-subrequest` header.
+**CVE-2025-29927** 是 Next.js 中的一个关键安全漏洞，攻击者可以通过利用 `x-middleware-subrequest` 标头的不当处理来绕过基于中间件的授权控制。
 
-### 🎯 Vulnerability Details
+### 🎯 漏洞详情
 
-| Attribute | Value |
+| 属性 | 值 |
 |-----------|--------|
 | **CVE ID** | CVE-2025-29927 |
-| **CVSS Score** | 9.8 (CRITICAL) |
-| **Affected Versions** | Next.js 13.4.0 - 15.2.3 |
-| **Fixed Versions** | Next.js 14.2.25+, 15.2.3+ |
-| **Discovery Date** | March 21, 2025 |
-| **Vulnerability Type** | Authorization Bypass |
+| **CVSS 评分** | 9.8 (严重) |
+| **受影响版本** | Next.js 13.4.0 - 15.2.3 |
+| **修复版本** | Next.js 14.2.25+, 15.2.3+ |
+| **发现日期** | 2025年3月21日 |
+| **漏洞类型** | 授权绕过 |
 
-### 🔍 Technical Details
+### 🔍 技术详情
 
-**Root Cause**: Next.js middleware processes the `x-middleware-subrequest` header incorrectly, treating requests with this header as internal trusted sub-requests and bypassing authorization checks.
+**根本原因**: Next.js 中间件错误处理 `x-middleware-subrequest` 标头，将带有此标头的请求视为内部可信的子请求，从而绕过授权检查。
 
-**Impact**: Attackers can access protected routes (e.g., `/admin`, `/api/sensitive`) without authentication.
+**影响**: 攻击者可以在未经身份验证的情况下访问受保护的路由（如 `/admin`、`/api/sensitive`）。
 
-## 🚀 Features
+## 🚀 功能特性
 
-- ✅ Single-file Python exploit
-- ✅ Automated vulnerability detection
-- ✅ Batch scanning support
-- ✅ Docker-based vulnerable environment
-- ✅ Detailed logging and output
-- ✅ No external dependencies (only `requests`)
+- ✅ 单文件 Python 利用工具
+- ✅ 自动化漏洞检测
+- ✅ 批量扫描支持
+- ✅ 基于Docker的易受攻击环境
+- ✅ 详细的日志记录和输出
+- ✅ 无外部依赖（仅 `requests`）
 
-## 📦 Installation
+## 📦 安装
 
 ```bash
-# Clone the repository
+# 克隆仓库
 git clone https://github.com/hujiaozhuzhu/CVE-2025-29927-POC.git
 cd CVE-2025-29927-POC
 
-# Install dependencies
+# 安装依赖
 pip install -r requirements.txt
 ```
 
-## 🎯 Usage
+## 🎯 使用方法
 
-### Quick Start (Exploit Single Target)
+### 快速开始（利用单个目标）
 
 ```bash
 python exploit/cve_2025_29927.py -u http://127.0.0.1:3000
 ```
 
-### Advanced Options
+### 高级选项
 
 ```bash
-# Custom admin path
+# 自定义管理路径
 python exploit/cve_2025_29927.py -u http://target.com -p /admin
 
-# Verbose output
+# 详细输出
 python exploit/cve_2025_29927.py -u http://target.com -v
 
-# Save results to file
+# 保存结果到文件
 python exploit/cve_2025_29927.py -u http://target.com -o results.txt
 ```
 
-### Batch Scanning
+### 批量扫描
 
 ```bash
-# Scan multiple targets from file
+# 从文件扫描多个目标
 python exploit/batch_scanner.py -f targets.txt
 
-# Scan IP range
+# 扫描IP范围
 python exploit/batch_scanner.py --range 192.168.1.0-255
 ```
 
-## 🏗️ Setup Vulnerable Environment
+## 🏗️ 搭建易受攻击环境
 
-### Using Docker (Recommended)
+### 使用Docker（推荐）
 
 ```bash
 cd target
 docker-compose up -d
 ```
 
-Access the vulnerable application at `http://localhost:3000`
+访问易受攻击的应用: `http://localhost:3000`
 
-### Manual Setup
+### 手动搭建
 
 ```bash
 cd target
@@ -93,115 +93,115 @@ npm install
 npm run dev
 ```
 
-## 📊 Vulnerability Detection Flow
+## 📊 漏洞检测流程
 
-1. **Normal Request**: Sends GET request without exploit headers
-   - Expected: 302/401/403 (blocked by middleware)
+1. **正常请求**: 发送不带利用标头的GET请求
+   - 预期: 302/401/403 (被中间件阻止)
 
-2. **Exploit Request**: Sends GET request with `x-middleware-subrequest: 1`
-   - Expected: 200 (bypasses middleware)
-   - Success: Response contains admin content
+2. **利用请求**: 发送带有 `x-middleware-subrequest: 1` 的GET请求
+   - 预期: 200 (绕过中间件)
+   - 成功: 响应包含管理内容
 
-## 🛡️ Mitigation & Defense
+## 🛡️ 缓解与防御
 
-### Immediate Actions
+### 立即行动
 
-1. **Upgrade Next.js**
+1. **升级Next.js**
    ```bash
    npm install next@latest
-   # or
+   # 或
    npm install next@14.2.25
    ```
 
-2. **Block Vulnerable Header** in reverse proxy
+2. **在反向代理中阻止易受攻击的标头**
    ```nginx
    location / {
      deny x-middleware-subrequest;
-     # ... rest of config
+     # ... 其余配置
    }
    ```
 
-### Long-term Recommendations
+### 长期建议
 
-- Implement defense-in-depth (multiple auth layers)
-- Regular security audits
-- Keep dependencies updated
-- Use Web Application Firewall (WAF)
+- 实施纵深防御（多层认证）
+- 定期安全审计
+- 保持依赖更新
+- 使用Web应用防火墙（WAF）
 
-## 📚 Documentation
+## 📚 文档
 
-- [Vulnerability Analysis](docs/vuln_analysis.md)
-- [Usage Guide](docs/usage_guide.md)
-- [Defense & Remediation](docs/defense.md)
+- [漏洞分析](docs/vuln_analysis.md)
+- [使用指南](docs/usage_guide.md)
+- [防御与修复](docs/defense.md)
 
-## 🧪 Testing
+## 🧪 测试
 
-### Manual Testing
+### 手动测试
 
 ```bash
-# Run vulnerability test
+# 运行漏洞测试
 python exploit/cve_2025_29927.py -u http://localhost:3000 -t
 ```
 
-### Automated Testing
+### 自动化测试
 
 ```bash
-# Run test suite
+# 运行测试套件
 python tests/test_exploit.py
 ```
 
-## 🔬 Research References
+## 🔬 研究参考
 
-- [NVD Entry](https://nvd.nist.gov/vuln/detail/CVE-2025-29927)
-- [Next.js Security Advisory](https://github.com/vercel/next.js/security/advisories)
-- [Technical Analysis](https://securitylabs.datadoghq.com/articles/nextjs-middleware-auth-bypass/)
+- [NVD条目](https://nvd.nist.gov/vuln/detail/CVE-2025-29927)
+- [Next.js安全公告](https://github.com/vercel/next.js/security/advisories)
+- [技术分析](https://securitylabs.datadoghq.com/articles/nextjs-middleware-auth-bypass/)
 
-## 📝 Changelog
+## 📝 更新日志
 
 ### v1.0.0 (2025-04-02)
-- Initial release
-- Single-target exploitation
-- Batch scanning support
-- Docker vulnerable environment
-- Comprehensive documentation
+- 初始发布
+- 单目标利用
+- 批量扫描支持
+- Docker易受攻击环境
+- 全面的文档
 
-## 👥 Contributors
+## 👥 贡献者
 
-- [Your Name] - Initial implementation
+- [您的姓名] - 初始实现
 
-## 📄 License
+## 📄 许可证
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+此项目采用MIT许可证 - 详见 [LICENSE](LICENSE) 文件。
 
-## ⚠️ Legal Disclaimer
+## ⚠️ 法律声明
 
-**IMPORTANT**: This tool is provided for educational and authorized security testing purposes only.
+**重要**: 此工具仅用于教育和授权安全测试目的。
 
-- Use only on systems you own or have explicit permission to test
-- Unauthorized access to computer systems is illegal
-- Report vulnerabilities responsibly to vendors
-- Follow responsible disclosure guidelines
+- 仅在您拥有或获得明确许可的测试的系统上使用
+- 未经授权访问计算机系统是非法的
+- 向供应商负责任地报告漏洞
+- 遵循负责任披露指南
 
-**By using this tool, you agree to:**
-- Comply with all applicable laws and regulations
-- Use only for authorized security testing
-- Report discovered vulnerabilities responsibly
-- Not use for malicious purposes
+**使用此工具，您同意:**
+- 遵守所有适用的法律和法规
+- 仅用于授权的安全测试
+- 负责任地报告发现的漏洞
+- 不用于恶意目的
 
-## 📞 Reporting Vulnerabilities
+## 📞 报告漏洞
 
-If you find issues with this tool or discover new vulnerabilities, please report them responsibly:
+如果您发现此工具的问题或发现新漏洞，请负责任地报告：
 
-1. Contact the vendor (Vercel/Next.js team)
-2. Follow responsible disclosure guidelines
-3. Consider joining bug bounty programs
+1. 联系供应商（Vercel/Next.js团队）
+2. 遵循负责任披露指南
+3. 考虑加入漏洞赏金计划
 
-## 🙏 Acknowledgments
+## 🙏 致谢
 
-- Vercel/Next.js team for prompt disclosure and fix
-- Security research community for analysis and testing
-- Vulnerability discoverers
+- Vercel/Next.js团队的及时披露和修复
+- 安全研究社区的分析和测试
+- 漏洞发现者
 
 ---
 
-**Remember**: Security research should always be ethical and legal. Use your skills to make the internet safer! 🛡️
+**记住**: 安全研究应该始终是合乎道德和合法的。用您的技能使互联网更安全! 🛡️
